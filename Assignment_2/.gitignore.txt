@@ -1,0 +1,17 @@
+# Ignore huge data files and folders
+data/
+datamart/
+*.csv
+*.parquet
+*.tar.gz
+*.whl
+
+# Ignore trained models
+model/artefacts/
+*.pkl
+
+# Ignore Python & Airflow system files
+__pycache__/
+*.pyc
+airflow.db
+logs/

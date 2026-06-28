@@ -62,7 +62,7 @@ def process_feature_gold_tables(snapshot_date_str, silver_fa_directory, silver_f
 
     clickstream_cols = [c for c in df_fc.columns if c.startswith('fe_')]
     agg_exprs = [F.sum(c).alias(f"Total_{c}") for c in clickstream_cols]
-    df_gold_clickstream = df_fc.groupBy("Customer_ID").agg(*agg_exprs)
+    df_gold_clickstream = df_fc.groupBy("Customer_ID", "snapshot_date").agg(*agg_exprs)
 
     # Updated variable for the save paths
     core_path = gold_feature_store_directory + "gold_core_profile" + partition_suffix
