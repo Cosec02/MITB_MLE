@@ -1,11 +1,42 @@
 services:
-  jupyter:
-    build: .
-    container_name: jupyter_lab
-    ports:
-      - "8888:8888"
+  airflow-init:
+    image: apache/airflow:2.10.5
+    container_name: airflow_init
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=sqlite:////app/airflow.db
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW_HOME=/app
     volumes:
       - .:/app
+    command: ["airflow", "db", "init"]
+
+  airflow-webserver:
+    image: apache/airflow:2.10.5
+    container_name: airflow_webserver
+    ports:
+      - "8080:8080"
     environment:
-      - JUPYTER_ENABLE_LAB=yes
-    command: ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--notebook-dir=/app", "--ServerApp.token=''", "--ServerApp.disable_check_xsrf=True"]
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=sqlite:////app/airflow.db
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW_HOME=/app
+    volumes:
+      - .:/app
+    command: ["airflow", "webserver"]
+    depends_on:
+      - airflow-init
+
+  airflow-scheduler:
+    image: apache/airflow:2.10.5
+    container_name: airflow_scheduler
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=sqlite:////app/airflow.db
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW_HOME=/app
+    volumes:
+      - .:/app
+    command: ["airflow", "scheduler"]
+    depends_on:
+      - airflow-init
